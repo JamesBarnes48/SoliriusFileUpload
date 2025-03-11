@@ -7,10 +7,16 @@ exports.uploadFile = (req, res) => {
     //configure readable stream
     const readableStream = new stream.Readable();
     readableStream._read = () => {}; // _read is required but we can leave it empty
-    readableStream.push(req.file.buffer); // Pushing the file buffer into the stream
-    readableStream.push(null); // No more data after the buffer
+    readableStream.push(req.file.buffer); 
+    readableStream.push(null); 
 
     const linePromises = [];
+    readableStream.pipe(csv()).on('data', (row) => {linePromises.push(processLine(row))});
 
-    readableStream.pipe(csv()).on('data', (chunk) => {console.log(chunk)});
+    Promise.all(linePromises);
+}
+
+const processLine = async (line) => {
+    console.log('processing line:');
+    console.log(line);
 }
