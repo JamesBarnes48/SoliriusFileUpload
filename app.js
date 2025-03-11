@@ -27,8 +27,8 @@ const upload = multer({
     },
 });
 //'name' attribute of the html input field which the csv file was uploaded into - found in req.body
-const fieldName = 'file';
+const fieldName = 'csvFile';
 
 //routes
 app.get('/', fileUpload.test);
-app.post('/upload', fileUpload.uploadFile);
+app.post('/upload', upload.single(fieldName), fileUpload.uploadFile);
