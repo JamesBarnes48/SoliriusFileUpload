@@ -14,6 +14,4 @@ const port = 3000;
 app.listen(port, () => {console.log('app is listening on port ' + port)})
 
 //routes
-app.get('/', (req, res) => {
-    res.send('hello');
-})
+app.get('/', fileUpload.test)
