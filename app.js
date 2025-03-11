@@ -13,5 +13,22 @@ app.use(express.urlencoded({ extended: true }));
 const port = 3000;
 app.listen(port, () => {console.log('app is listening on port ' + port)})
 
+//setup multer
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
+    fileFilter: (req, file, cb) => {
+        const fileTypes = /csv/;
+        const extname = fileTypes.test(file.originalname.toLowerCase());
+        const mimetype = fileTypes.test(file.mimetype);
+
+        if (mimetype && extname) return cb(null, true);
+        cb(new Error('Invalid file type. Only CSV files are allowed.'));
+    },
+});
+//'name' attribute of the html input field which the csv file was uploaded into - found in req.body
+const fieldName = 'file';
+
 //routes
-app.get('/', fileUpload.test)
+app.get('/', fileUpload.test);
+app.post('/upload', fileUpload.uploadFile);
