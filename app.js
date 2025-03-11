@@ -13,7 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 const port = 3000;
 app.listen(port, () => {console.log('app is listening on port ' + port)})
 
-//setup multer
+//setup multer - using memoryStorage means we dont have to save all the csvs we receive
 const upload = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
