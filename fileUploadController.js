@@ -1,4 +1,5 @@
 const csv = require('csv-parser');
+const axios = require('axios');
 const stream = require('stream');
 
 exports.uploadFile = (req, res) => {
@@ -17,6 +18,6 @@ exports.uploadFile = (req, res) => {
 }
 
 const processLine = async (line) => {
-    console.log('processing line:');
-    console.log(line);
+    const isValid = await axios.get(`http://localhost:3000/validate`, {params: {email: line.email}});
+    console.log(isValid.data);
 }

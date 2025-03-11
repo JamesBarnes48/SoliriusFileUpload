@@ -31,3 +31,7 @@ const fieldName = 'csvFile';
 
 //routes
 app.post('/upload', upload.single(fieldName), fileUpload.uploadFile);
+app.get('/validate', (req, res) => {
+    if(req.query.email?.includes('@')) return res.json({valid: true});
+    return res.json({valid: false});
+})
