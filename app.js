@@ -30,5 +30,4 @@ const upload = multer({
 const fieldName = 'csvFile';
 
 //routes
-app.get('/', fileUpload.test);
 app.post('/upload', upload.single(fieldName), fileUpload.uploadFile);
