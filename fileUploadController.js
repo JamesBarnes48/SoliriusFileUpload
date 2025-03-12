@@ -2,7 +2,7 @@ const csv = require('csv-parser');
 const axios = require('axios');
 const stream = require('stream');
 
-exports.uploadFile = (req, res) => {
+exports.uploadFile = async (req, res) => {
     if(!req.file) return res.status(400).send('No file received');
 
     //configure readable stream
@@ -12,12 +12,22 @@ exports.uploadFile = (req, res) => {
     readableStream.push(null); 
 
     const linePromises = [];
-    readableStream.pipe(csv()).on('data', (row) => {linePromises.push(processLine(row))});
-
-    Promise.all(linePromises);
+    readableStream.pipe(csv())
+        .on('data', (row) => {linePromises.push(processLine(row))})
+        .on('end', async () => {
+            const validation = await Promise.all(linePromises);
+            res.send(validation);
+        });
 }
 
 const processLine = async (line) => {
-    const isValid = await axios.get(`http://localhost:3000/validate`, {params: {email: line.email}});
-    console.log(isValid.data);
+    //expect json response - {valid: boolean}
+    try{
+        const isValid = await axios.get(`http://localhost:3000/validate`, {params: {email: line.email}});
+        return !!isValid.data?.valid
+    }catch(err){
+        return false;
+    }
+    
+    
 }
