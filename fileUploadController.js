@@ -16,6 +16,7 @@ exports.uploadFile = async (req, res) => {
         .on('data', (row) => {linePromises.push(processLine(row))})
         .on('end', async () => {
             const validation = await Promise.all(linePromises);
+            
             res.send(validation);
         });
 }
@@ -24,9 +25,9 @@ const processLine = async (line) => {
     //expect json response - {valid: boolean}
     try{
         const isValid = await axios.get(`http://localhost:3000/validate`, {params: {email: line.email}});
-        return !!isValid.data?.valid
+        return {valid: !!isValid.data?.valid, error: !isValid.data?.valid? 'Invalid Email Format': null}
     }catch(err){
-        return false;
+        return {valid: false, error: err.message};
     }
     
     
