@@ -39,6 +39,8 @@ const processLine = async (line) => {
         const isValid = await axios.get(`http://localhost:3000/validate`, {params: {email: line.email}});
         return {line: line, valid: !!isValid.data?.valid, error: !isValid.data?.valid? 'Invalid Email Format': null}
     }catch(err){
+        //little different to spec - think this handles odd errors without disrupting the whole thing and outputs them in the details fields (seems to be that field's whole purpose)
+        //for ui app would prob console.log the error and return a generic message in the response for security but api users want more detail
         return {line: line, valid: false, error: err.message};
     }
     
