@@ -43,6 +43,9 @@ const processLine = async (line) => {
         //for ui app would prob console.log the error and return a generic message in the response for security but api users want more detail
         return {line: line, valid: false, error: err.message};
     }
-    
-    
+}
+
+exports.checkStatus = (req, res) => {
+    const { uploadID } = req.params;
+    console.log('got uploadid: ' + uploadID);
 }
