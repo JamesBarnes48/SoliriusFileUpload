@@ -1,6 +1,7 @@
 const csv = require('csv-parser');
 const axios = require('axios');
 const stream = require('stream');
+const pLimit = require('p-limit');
 
 exports.uploadFile = async (req, res) => {
     if(!req.file) return res.status(400).send('No file received');
@@ -11,9 +12,9 @@ exports.uploadFile = async (req, res) => {
     readableStream.push(req.file.buffer); 
     readableStream.push(null); 
 
-    const linePromises = [];
+    const linePromises = [], limit = pLimit(5);
     readableStream.pipe(csv())
-        .on('data', (row) => {linePromises.push(processLine(row))})
+        .on('data', (row) => {linePromises.push(limit(() => processLine(row)))})
         .on('end', async () => {
             //asynchronously validate csv rows
             const validationResults = await Promise.all(linePromises);
@@ -28,7 +29,7 @@ exports.uploadFile = async (req, res) => {
                     recordStatistics.details.push({...result.line, error: result.error});
                 }
             })
-            res.send(recordStatistics);
+            res.json(recordStatistics);
         });
 }
 
