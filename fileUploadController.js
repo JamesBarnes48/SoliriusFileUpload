@@ -4,7 +4,8 @@ const stream = require('stream');
 const pLimit = require('p-limit');
 
 exports.uploadFile = async (req, res) => {
-    if(!req.file) return res.status(400).send('No file received');
+    //req.file is undefined when either not supplied or the file supplied is not csv
+    if(!req.file) return res.status(400).send('No valid file received');
 
     //configure readable stream
     const readableStream = new stream.Readable();

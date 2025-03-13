@@ -24,7 +24,7 @@ const upload = multer({
         const mimetype = fileTypes.test(file.mimetype);
 
         if (mimetype && extname) return cb(null, true);
-        cb(new Error('Invalid file type. Only CSV files are allowed.'));
+        cb(null, false);
     },
 });
 
