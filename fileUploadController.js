@@ -44,12 +44,13 @@ exports.uploadFile = async (req, res) => {
 
 const processLine = async (line, uploadID) => {
     const uploadStats = currentlyUploading.get(uploadID);
+    uploadStats.totalRecords++;
     if(!line.email){
         uploadStats.failedRecords++;
         uploadStats.details.push({...line, error: 'No email provided'});
+        return;
     }
     const isValid = await axios.get(`http://localhost:3000/validate`, {params: {email: line.email}, timeout: 5000});
-    uploadStats.totalRecords++;
     if(!!isValid.data?.valid) uploadStats.processedRecords++;
     else{
         uploadStats.failedRecords++;
@@ -57,7 +58,9 @@ const processLine = async (line, uploadID) => {
     }
 }
 
+//NOTE: likely need to reduce p-limit to be able to grab status in time!
 exports.checkStatus = (req, res) => {
     const { uploadID } = req.params;
-    console.log('got uploadid: ' + uploadID);
+    const foundUpload = currentlyUploading.get(uploadID);
+    res.send(foundUpload);
 }
