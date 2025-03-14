@@ -18,7 +18,15 @@ exports.uploadFile = async (req, res) => {
         .on('data', (row) => {linePromises.push(limit(() => processLine(row)))})
         .on('end', async () => {
             //asynchronously validate csv rows
-            const validationResults = await Promise.all(linePromises);
+            let validationResults = [];
+            try{
+                validationResults = await Promise.all(linePromises);
+            }catch(err){
+                //could either handle errors line-by-line inside processLine or break out of Promise.all by handling them here
+                //figure that if an axios error occurs for one line then its likely to occur for all, therefore break out
+                res.status(500).send('Validation server error: ' + err.message);
+                return;
+            }
 
             //initialise object to return and populate with validationResults
             const recordStatistics = {totalRecords: 0, processedRecords: 0, failedRecords: 0, details: []}
@@ -36,14 +44,9 @@ exports.uploadFile = async (req, res) => {
 
 const processLine = async (line) => {
     //expect json response - {valid: boolean}
-    try{
-        const isValid = await axios.get(`http://localhost:3000/validate`, {params: {email: line.email}});
-        return {line: line, valid: !!isValid.data?.valid, error: !isValid.data?.valid? 'Invalid Email Format': null}
-    }catch(err){
-        //little different to spec - think this handles odd errors without disrupting the whole thing and outputs them in the details fields (seems to be that field's whole purpose)
-        //for ui app would prob console.log the error and return a generic message in the response for security but api users want more detail
-        return {line: line, valid: false, error: err.message};
-    }
+    if(!line.email) return {line: line, valid: false, error: 'No email found'};
+    const isValid = await axios.get(`http://localhost:3000/validate`, {params: {email: line.email}, timeout: 5000});
+    return {line: line, valid: !!isValid.data?.valid, error: !isValid.data?.valid? 'Invalid email format': null};
 }
 
 exports.checkStatus = (req, res) => {

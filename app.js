@@ -44,7 +44,7 @@ app.post('/upload', limiter, upload.single(fieldName), fileUpload.uploadFile);
 app.get('/status/:uploadID', fileUpload.checkStatus);
 app.get('/validate', (req, res) => {
     setTimeout(() => {
-        if(req.query.email?.includes('@')) return res.json({valid: true});
+        if((req.query.email || '').includes('@')) return res.json({valid: true});
         return res.json({valid: false});
     }, 3000)
 })
