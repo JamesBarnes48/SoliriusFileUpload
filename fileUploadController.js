@@ -3,12 +3,16 @@ const axios = require('axios');
 const stream = require('stream');
 const pLimit = require('p-limit');
 const crypto = require('crypto');
+const {logger} = require('./utils/logger.js');
 
 const currentlyUploading = new Map();
 
 exports.uploadFile = async (req, res) => {    
     //req.file is undefined when either not supplied or the file supplied is not csv
-    if(!req.file) return res.status(400).send('No valid file received');
+    if(!req.file){
+        logger.log('error', 'POST /upload error: No valid file received');
+        return res.status(400).send('No valid file received');
+    }
 
     //generate upload id and allocate space for blank upload stats
     const uploadID = req.body.uploadID || crypto.randomUUID();
@@ -31,9 +35,9 @@ exports.uploadFile = async (req, res) => {
             }catch(err){
                 //could either handle errors line-by-line inside processLine or break out of Promise.all by handling them here
                 //figure that if an axios error occurs for one line then its likely to occur for all, therefore break out
-                res.status(500).send('Validation server error: ' + err.message);
                 currentlyUploading.delete(uploadID);
-                return;
+                logger.log('error', 'POST /upload error:' + err.message);
+                return res.status(500).send('Validation server error: ' + err.message);
             }
             //finalise upload stats and wipe from variable
             const final = currentlyUploading.get(uploadID);
