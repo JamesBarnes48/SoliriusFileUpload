@@ -7,12 +7,12 @@ exports.logger = new winston.Logger({
         new (winston.transports.Console)(),
         new (winston.transports.File)({
             name: 'combined-logs',
-            filename: 'combined-logs.log',
+            filename: 'combined.log',
             level: 'info'
         }),
         new (winston.transports.File)({
             name: 'error-logs',
-            filename: 'error-logs.log',
+            filename: 'error.log',
             level: 'error'
         })
     ],

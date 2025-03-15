@@ -5,6 +5,7 @@ const { rateLimit } = require("express-rate-limit");
 
 //scripts
 const fileUpload = require('./fileUploadController.js');
+const {logger} = require('./utils/logger.js');
 
 //setup express
 const app = express();
@@ -39,6 +40,12 @@ const limiter = rateLimit({
 //'name' attribute of the html input field which the csv file was uploaded into - found in req.body
 const fieldName = 'csvFile';
 
+//logging middleware
+app.use((req, res, next) => {
+    logger.log('info', 'Request made to: ' + req.method + ' ' + req.url);
+    next();
+})
+
 //routes
 app.post('/upload', limiter, upload.single(fieldName), fileUpload.uploadFile);
 app.get('/status/:uploadID', fileUpload.checkStatus);
@@ -47,4 +54,4 @@ app.get('/validate', (req, res) => {
         if((req.query.email || '').includes('@')) return res.json({valid: true});
         return res.json({valid: false});
     }, 3000)
-})
+});
