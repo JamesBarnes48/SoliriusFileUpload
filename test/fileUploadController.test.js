@@ -98,9 +98,10 @@ describe('POST /upload', function () {
         .query({ email: 'john@example.com' })
         .replyWithError('test message');
 
+      //single row file prevent nock-related errors
       chai.request(app)
       .post('/upload')
-      .attach('csvFile', './test/fixtures/testFile.csv')
+      .attach('csvFile', './test/fixtures/singleRowFile.csv')
       .end((err, res) => {
         chai.expect(res).to.have.status(500);
         chai.expect(res.text).to.match(/.*Validation server error.*/);
