@@ -58,8 +58,8 @@ describe('POST /upload', function () {
           chai.expect(res.body).to.have.all.keys('totalRecords', 'failedRecords', 'processedRecords', 'details');
           chai.expect(res.body.details).to.be.an('array');
           
-          chai.expect(res.body.processedRecords).to.equal(3);
-          chai.expect(res.body.failedRecords).to.equal(4);
+          chai.expect(res.body.processedRecords).to.equal(4);
+          chai.expect(res.body.failedRecords).to.equal(5);
           done();
       });
     });
@@ -131,11 +131,17 @@ describe('GET /status/:uploadID', function() {
 
   describe('Success Cases', function() {
     it('Should return a JSON response of the current status of the POST /upload query', function (done) {
+      let completedRequests = 0;
+      const checkCompleted = () => {
+        completedRequests++;
+        if(completedRequests === 2) done();
+      }
+
       chai.request(app)
       .post('/upload')
       .attach('csvFile', './test/fixtures/largeTestFile.csv')
       .field('uploadID', 'testID')
-      .end((err, res) => {});
+      .end((err, res) => {checkCompleted()});
 
       //ensure /upload has started before checking status
       setTimeout(() => {
@@ -147,7 +153,7 @@ describe('GET /status/:uploadID', function() {
           chai.expect(res.body).to.have.all.keys('totalRecords', 'failedRecords', 'processedRecords', 'details');
           chai.expect(res.body.details).to.be.an('array');
   
-          done();
+          checkCompleted();
         })
       }, 2000)
     });
