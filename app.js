@@ -56,4 +56,8 @@ app.get('/validate', (req, res) => {
     }, 1500)
 });
 
+app.all('*', (req, res) => {
+    res.status(404).send('Not Found');
+});
+
 module.exports = app;

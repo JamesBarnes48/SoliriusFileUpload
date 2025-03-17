@@ -5,6 +5,18 @@ const nock = require('nock');
 
 chai.use(chaiHttp);
 
+describe('General Testing', function () {
+  it('Invalid routes should respond with 404', function (done) {
+    chai.request(app)
+    .post('/tester')
+    .end((err, res) => {
+        chai.expect(res).to.have.status(404);
+        chai.expect(res.text).to.equal('Not Found');
+        done();
+    });
+  })
+})
+
 describe('POST /upload', function () {
   this.timeout(8000);
 
@@ -139,5 +151,29 @@ describe('GET /status/:uploadID', function() {
         })
       }, 2000)
     });
-  })
-})
+
+    describe('Error Cases', function() {
+      it('Should return an error when fetching an uploadID that doesnt exist', function (done) {
+        chai.request(app)
+        .get('/status/testID')
+        .end((err, res) => {
+          chai.expect(res).to.have.status(400);
+          chai.expect(res.text).to.equal('No upload found for uploadID')
+  
+          done();
+        });
+      });
+
+      it('Should return an error when no uploadID provided', function (done) {
+        chai.request(app)
+        .get('/status')
+        .end((err, res) => {
+          chai.expect(res).to.have.status(404);
+          chai.expect(res.text).to.equal('Not Found');
+  
+          done();
+        });
+      });
+    });
+  });
+});

@@ -62,8 +62,9 @@ const processLine = async (line, uploadID) => {
 
 //NOTE: likely need to reduce p-limit to be able to grab status in time!
 exports.checkStatus = (req, res) => {
+    if(!req.params.uploadID) return res.status(400).send('No uploadID provided');
     const { uploadID } = req.params;
     const foundUpload = currentlyUploading.get(uploadID);
     if(foundUpload) return res.json(foundUpload)
-    res.send('No upload found for uploadID')
+    res.status(400).send('No upload found for uploadID')
 }
