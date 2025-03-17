@@ -64,5 +64,5 @@ const processLine = async (line, uploadID) => {
 exports.checkStatus = (req, res) => {
     const { uploadID } = req.params;
     const foundUpload = currentlyUploading.get(uploadID);
-    res.send(foundUpload);
+    res.send(foundUpload || 'No upload found for uploadID');
 }
