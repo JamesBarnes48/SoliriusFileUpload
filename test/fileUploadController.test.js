@@ -1,6 +1,7 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const app = require('../app.js');
+const nock = require('nock');
 
 chai.use(chaiHttp);
 
@@ -76,5 +77,24 @@ describe('POST /upload', function () {
           done();
       });
     });
+
+    it('Should respond with server error if validation server errors', function(done) {
+      const validationServer = nock('http://localhost:3000')
+        .get('/validate')
+        .query({ email: 'john@example.com' })
+        .replyWithError('test message');
+
+      chai.request(app)
+      .post('/upload')
+      .attach('csvFile', './test/fixtures/testFile.csv')
+      .end((err, res) => {
+        console.info(res);
+          chai.expect(res).to.have.status(500);
+          chai.expect(res.text).to.match(/.*Validation server error.*/);
+
+          validationServer.done();
+          done();
+      });
+    })
   })
 });
