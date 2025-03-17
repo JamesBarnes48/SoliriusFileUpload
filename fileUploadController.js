@@ -28,10 +28,8 @@ exports.uploadFile = async (req, res) => {
     readableStream.pipe(csv())
         .on('data', (row) => {linePromises.push(limit(() => processLine(row, uploadID)))})
         .on('end', async () => {
-            //asynchronously validate csv rows
-            let validationResults = [];
             try{
-                validationResults = await Promise.all(linePromises);
+                await Promise.all(linePromises);
             }catch(err){
                 //could either handle errors line-by-line inside processLine or break out of Promise.all by handling them here
                 //figure that if an axios error occurs for one line then its likely to occur for all, therefore break out
