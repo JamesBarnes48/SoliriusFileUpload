@@ -107,8 +107,37 @@ describe('POST /upload', function () {
         chai.expect(res.text).to.match(/.*Validation server error.*/);
 
         validationServer.done();
+        nock.cleanAll();
         done();
       });
     })
   })
 });
+
+describe('GET /status/:uploadID', function() {
+  this.timeout(6000);
+
+  describe('Success Cases', function() {
+    it('Should return a JSON response of the current status of the POST /upload query', function (done) {
+      chai.request(app)
+      .post('/upload')
+      .attach('csvFile', './test/fixtures/largeTestFile.csv')
+      .field('uploadID', 'testID')
+      .end((err, res) => {});
+
+      //ensure /upload has started before checking status
+      setTimeout(() => {
+        chai.request(app)
+        .get('/status/testID')
+        .end((err, res) => {
+          chai.expect(res).to.have.status(200);
+          chai.expect(res.body).to.be.an('object');
+          chai.expect(res.body).to.have.all.keys('totalRecords', 'failedRecords', 'processedRecords', 'details');
+          chai.expect(res.body.details).to.be.an('array');
+  
+          done();
+        })
+      }, 2000)
+    });
+  })
+})
