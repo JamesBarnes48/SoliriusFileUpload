@@ -53,5 +53,7 @@ app.get('/validate', (req, res) => {
     setTimeout(() => {
         if((req.query.email || '').includes('@')) return res.json({valid: true});
         return res.json({valid: false});
-    }, 3000)
+    }, 1500)
 });
+
+module.exports = app;
